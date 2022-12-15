@@ -58,10 +58,12 @@ def upload():
             isNewKey = len(cur.fetchall()) == 0
             # saveFile(path + image.filename, image.filename, imagePath)
             if(isNewKey) :
+                s3.upload_file(Filename=filepath,Bucket=app.config["S3_BUCKET"],Key=key)
                 cur.execute("INSERT INTO images (keyy,image) VALUES(%s,%s)",(keey,image.filename))
                 #s3.upload_file(Filename=f"{imagePath}/{image.filename}",Bucket>
                 done = "Upload Successfully"
             else :
+                s3.upload_file(Filename=filepath,Bucket=app.config["S3_BUCKET"],Key=key)
                 cur.execute("UPDATE images SET image = %s WHERE keyy = %s", (image.filename,key))
                 done = "Update Successfully"
 
