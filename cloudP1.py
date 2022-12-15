@@ -14,6 +14,8 @@ con = mysql.connector.connect(host = 'localhost', user = 'root', password = '195
 cur = con.cursor()
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER']="static/" #the path for images folder
+path = '.\\static\\'
 
 app.config['S3_BUCKET']="proj2bucket"
 app.config['S3_LOCATION']='http://proj2bucket.s3.amazonaws.com/'
@@ -55,15 +57,14 @@ def req():
 
 @app.route('/upload', methods = ['POST','GET']) 
 def upload():
-    if request.method == 'POST' :
-        try:
-            # con=mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='c_db')            
-            con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')            
-            cur = con.cursor() 
-            key = request.form["key1"]
-            image = request.files["image"]
-            imagePath = request.form["image1"]
-            # imagePath = image.temporary_file_path
+    if request.method=='POST':
+        key= request.form['key']
+        image=request.files['image']
+        if image.filename!='':
+            filepath=os.path.join(app.config['UPLOAD_FOLDER'],image.filename)
+            image.save(filepath)
+            print(filepath) #in static folder path
+            
             cur.execute("SELECT keyy FROM images WHERE keyy = %s", [key])
             isNewKey = len(cur.fetchall()) == 0
             # saveFile(path + image.filename, image.filename, imagePath)
