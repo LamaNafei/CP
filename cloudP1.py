@@ -42,11 +42,11 @@ def req():
             cur.execute("SELECT keyy FROM images WHERE keyy = ?", [key])
             isNewKey = len(cur.fetchall()) == 0
             if not isNewKey :
-                 name = cur.execute("SELECT image FROM images WHERE keyy = ?", [key]).fetchall()[0][0]
+                 name = cur.execute("SELECT image FROM images WHERE keyy = ?", [key]).fetchall()
             else :
                     return render_template('request.html', keyCheck = "key not found !")
 
-            return render_template('request.html', user_image = ('..\\static\\' + name))
+            return render_template('request.html', user_image = (name[0][0]))
         except:
             return("error occur")
         finally:
