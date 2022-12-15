@@ -9,9 +9,7 @@ import boto3,botocore
 
 
 
-# con = mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='c_db')
-con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')            
-cur = con.cursor()
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER']="static/" #the path for images folder
@@ -58,7 +56,10 @@ def req():
 @app.route('/upload', methods = ['POST','GET']) 
 def upload():
     if request.method=='POST':
-        key= request.form['key']
+        key= request.form['key1']
+      # con = mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='c_db')
+        con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')            
+        cur = con.cursor()
         image=request.files['image']
         if image.filename!='':
             filepath=os.path.join(app.config['UPLOAD_FOLDER'],image.filename)
