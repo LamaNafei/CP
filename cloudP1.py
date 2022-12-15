@@ -1,4 +1,5 @@
 from PIL import Image
+import io
 import os
 from flask import Flask, render_template, request
 import mysql.connector
@@ -6,7 +7,6 @@ import os.path
 import mysql.connector
 #from flask_mysqldb import MySQL
 import boto3,botocore
-
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER']="static/" #the path for images folder
@@ -21,17 +21,20 @@ def manager():
     return render_template ("manager.html")
 
 @app.route('/request', methods = ['GET','POST'])
-def req():
+def req():  
     if request.method == 'POST' :
         try:
             con=mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='c_db')
             #con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')
-            cur = con.cursor()
+            cur = con.cursor()    
             key = request.form['key']
             cur.execute("SELECT keyy FROM images WHERE keyy = %s", [key])
             isNewKey = len(cur.fetchall()) == 0
+            print(len(cur.fetchall()) == 0)
             if not isNewKey :
-                 name = cur.execute("SELECT image FROM images WHERE keyy = %s", [key])
+                 print(len(cur.fetchall()) == 0)
+                 name = s3.generate_presigned_url('get_object', Params = {'Bucket': "cloudprojs3", 'Key': key}, ExpiresIn = 100)
+
             else :
                  return render_template('request.html', keyCheck = "key not found !")
 
@@ -39,7 +42,7 @@ def req():
         except:
             return("error occur")
         finally:
-            con.close()
+            #con.close()
     return render_template('request.html')
 
 @app.route('/upload', methods = ['POST','GET'])
@@ -49,9 +52,9 @@ def upload():
         con=mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='c_db')
        #con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')
         cur = con.cursor()
-        image=request.files['image']
-        if image.filename!='':
-            filepath=os.path.join(app.config['UPLOAD_FOLDER'],image.filename)
+        image = request.files['image']
+        if image.filename! = '':
+            filepath=os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
             image.save(filepath)
             print(filepath) #in static folder path
             cur.execute("SELECT keyy FROM images WHERE keyy = %s", [key])
@@ -59,18 +62,16 @@ def upload():
             # saveFile(path + image.filename, image.filename, imagePath)
             if(isNewKey) :
                 s3.upload_file(Filename=filepath,Bucket=app.config["S3_BUCKET"],Key=key)
-                cur.execute("INSERT INTO images (keyy,image) VALUES(%s,%s)",(keey,image.filename))
-                #s3.upload_file(Filename=f"{imagePath}/{image.filename}",Bucket>
+                cur.execute("INSERT INTO images (keyy,image) VALUES(%s,%s)",(key,image.filename))
+                #s3.upload_file(Filename=f"{imagePath}/{image.filename}",Bucket=app.config["S3_BUCKET"],Key=key)
                 done = "Upload Successfully"
-            else :
-                s3.upload_file(Filename=filepath,Bucket=app.config["S3_BUCKET"],Key=key)
-                cur.execute("UPDATE images SET image = %s WHERE keyy = %s", (image.filename,key))
-                done = "Update Successfully"
-
-            con.commit()
-            con.close()
-
-
+                else :
+                    s3.upload_file(Filename=filepath,Bucket=app.config["S3_BUCKET"], Key = key)
+                    cur.execute("UPDATE images SET image = %s WHERE keyy = %s", (image.filename,key))
+                    done = "Update Successfully"
+                    con.commit()
+                    con.close()
+                    
             return render_template('upload.html', done = done)
     return render_template('upload.html')
 
