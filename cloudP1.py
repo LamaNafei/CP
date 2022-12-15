@@ -15,7 +15,7 @@ cur = con.cursor()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER']="static/" #the path for images folder
-path = '.\\static\\'
+path = '.\static\'
 
 app.config['S3_BUCKET']="proj2bucket"
 app.config['S3_LOCATION']='http://proj2bucket.s3.amazonaws.com/'
