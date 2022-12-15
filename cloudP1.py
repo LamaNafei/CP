@@ -15,7 +15,7 @@ cur = con.cursor()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER']="static/" #the path for images folder
-path = '.\static\'
+path = './static/'
 
 app.config['S3_BUCKET']="proj2bucket"
 app.config['S3_LOCATION']='http://proj2bucket.s3.amazonaws.com/'
@@ -70,7 +70,7 @@ def upload():
             # saveFile(path + image.filename, image.filename, imagePath)
             if(isNewKey) :
                 cur.execute("INSERT INTO images (keyy,image) VALUES(%s,%s)",(key,image.filename))    
-                s3.upload_file(Filename=f"{imagePath}/{image.filename}",Bucket=app.config["S3_BUCKET"],Key=key)
+                #s3.upload_file(Filename=f"{imagePath}/{image.filename}",Bucket=app.config["S3_BUCKET"],Key=key)
                 done = "Upload Successfully"
             else :
                 cur.execute("UPDATE images SET image = %s WHERE keyy = %s", (image.filename,key))
@@ -78,9 +78,8 @@ def upload():
                     
             con.commit()
             con.close()
-        except:
-           return 'error'
-        finally:
+
+        
             return render_template('upload.html', done = done)
     return render_template('upload.html')
 
@@ -99,5 +98,3 @@ def keyList():
             return render_template('KeyList.html', keys=[str(val[0]) for val in cur.fetchall()])
     return render_template('KeyList.html')
 
-if __name__ == '__main__':
-    app.run('0.0.0.0',5001,debug = True)
