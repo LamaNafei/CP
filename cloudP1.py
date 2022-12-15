@@ -46,7 +46,7 @@ def req():
             else :
                     return render_template('request.html', keyCheck = "key not found !")
 
-            return render_template('request.html', user_image = (name[0][0]))
+            return render_template('request.html', user_image = name[0][0])
         except:
             return("error occur")
         finally:
