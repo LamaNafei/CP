@@ -12,10 +12,24 @@ path = './static/'
 
 @app.route('/')
 def main() :
+    # con = mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='cddb')
+    con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')
+    cur = con.cursor()
+    num = cur.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'cddb'")
+    if num == 0 :
+        createDatabase()
     return render_template("index.html")
 
 @app.route('/manager')
 def manager():
+    capacity = request.form['capacityMB']
+    policy = request.form['replacepolicy']
+    if policy == '1' :
+        leastRecentlyUsed()
+        # memcache.move_to_end(key)
+
+    elif policy == '0' :
+        randomPolicy()
     return render_template ("manager.html")
 
 @app.route('/request', methods = ['GET','POST'])
@@ -99,6 +113,48 @@ def keyList():
 
     return render_template('KeyList.html')
 
+
+def randomPolicy() :
+    global memcache
+    del memcache[random.choice(list(memcache.keys()))]
+
+def leastRecentlyUsed() :
+    global memcache
+    memcache.popitem(last = False) 
+
+def createInstance() :
+    ec2.create_instances(
+        ImageId ='ami-080ff70d8f5b80ba5',
+        MinCount = 1,
+        MaxCount = 1,
+        InstanceType ='t2.micro',
+        KeyName='test'
+        )
+
+def deleteInstance() :
+    ec2.terminate_instances()
+
+def clearMemcache() :
+    for key in memcache :
+        deleteInstance()
+
+def deleteDatabaseAndS3() :
+    con=mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='cddb')
+    # con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')
+    cur = con.cursor()
+    cur.execute("DROP TABLE images")
+    con.commit()
+    con.close()
+    # s3.Bucket('my-bucket').objects.all().delete()
+
+
+def createDatabase() :
+    con=mysql.connector.connect(host='database-2.ce56zqclzkbk.us-east-1.rds.amazonaws.com',username='admin',password='lamamaialaa',database='cddb')
+    #con = mysql.connector.connect(host = 'localhost', user = 'root', password = '1955', database = 'db')
+    cur = con.cursor()
+    cur.execute("CREATE TABLE images (keyy INT PRIMARY KEY NOT NULL, image VARCHAR(255) NOT NULL)")
+    con.commit()
+    con.close()
 
 if __name__ == '__main__':
     app.run('0.0.0.0',5001,debug=True)
