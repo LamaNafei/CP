@@ -124,13 +124,16 @@ def leastRecentlyUsed() :
     memcache.popitem(last = False) 
 
 def createInstance() :
+    global ec2
     ec2.create_instances(
-        ImageId ='ami-080ff70d8f5b80ba5',
+        ImageId = 'ami-098a105cd8df85ff3',
         MinCount = 1,
         MaxCount = 1,
         InstanceType ='t2.micro',
-        KeyName='test'
+        KeyName='test',
+        SecurityGroups =  ['launch-wizard-4', 'ec2-rds-6']
         )
+
 
 def deleteInstance() :
     ec2.terminate_instances()
