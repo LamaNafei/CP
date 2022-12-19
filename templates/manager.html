@@ -260,8 +260,13 @@
     <section class="u-clearfix u-white u-section-6" id="sec-e560">
       <div class="u-clearfix u-sheet u-sheet-1">
         <div class="fileRemoveTab">
-          <button class="tablinksFileRemove" onclick="openFileRemoveTab(event, 'Clear Database & S3')">Clear Database & S3</button>
-          <button class="tablinksFileRemove" onclick="openFileRemoveTab(event, 'Clear Memcache')">Clear Memcache</button>
+<!-- Tab button for choosing growing or shrinking -->
+<div class="manualPoolResizeTab">
+  <form method="POST" action="manager">
+ <input type="submit" value="clear database and s3" name="action3"/>
+ <input type="submit" value="clear memcache" name="action4"/>
+</form>
+          </div>
         </div>
 
         <div id="Clear Database & S3" class="tabcontentFileRemove">
