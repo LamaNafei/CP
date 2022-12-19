@@ -20,17 +20,18 @@ def main() :
         createDatabase()
     return render_template("index.html")
 
-@app.route('/manager')
+@app.route('/manager',methods=['GET','POST'])
 def manager():
-    capacity = request.form['capacityMB']
-    policy = request.form['replacepolicy']
-    if policy == '1' :
-        leastRecentlyUsed()
-        # memcache.move_to_end(key)
-
-    elif policy == '0' :
-        randomPolicy()
-    return render_template ("manager.html")
+  if request.method == 'POST':
+   if request.form.get('action1')=='grow':
+     createInstance()
+    #s3.Object(app.config['S3_BUCKET'],'9').delete()
+    #ec2.wait_until_running()
+    #bucket = s3.Bucket("cloudprojs3")
+    #bucket.objects.all().delete()
+    #s3.delete_object(Bucket="cloudprojs3", Key=filename[0])
+    #createInstance()
+  return render_template ("manager.html")
 
 @app.route('/request', methods = ['GET','POST'])
 def req():  
